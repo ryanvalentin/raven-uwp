@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RavenUWP", "RavenUWP\RavenU
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp", "..\TestApp\TestApp.csproj", "{D326E38A-4A85-4A0D-A7A9-F8A33E338C37}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RavenUWP.Tests", "RavenUWP.Tests\RavenUWP.Tests.csproj", "{7040A7E4-7590-42E4-8D8E-FD2044D63244}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,26 @@ Global
 		{D326E38A-4A85-4A0D-A7A9-F8A33E338C37}.Release|x86.ActiveCfg = Release|x86
 		{D326E38A-4A85-4A0D-A7A9-F8A33E338C37}.Release|x86.Build.0 = Release|x86
 		{D326E38A-4A85-4A0D-A7A9-F8A33E338C37}.Release|x86.Deploy.0 = Release|x86
+		{7040A7E4-7590-42E4-8D8E-FD2044D63244}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{7040A7E4-7590-42E4-8D8E-FD2044D63244}.Debug|ARM.ActiveCfg = Debug|ARM
+		{7040A7E4-7590-42E4-8D8E-FD2044D63244}.Debug|ARM.Build.0 = Debug|ARM
+		{7040A7E4-7590-42E4-8D8E-FD2044D63244}.Debug|ARM.Deploy.0 = Debug|ARM
+		{7040A7E4-7590-42E4-8D8E-FD2044D63244}.Debug|x64.ActiveCfg = Debug|x64
+		{7040A7E4-7590-42E4-8D8E-FD2044D63244}.Debug|x64.Build.0 = Debug|x64
+		{7040A7E4-7590-42E4-8D8E-FD2044D63244}.Debug|x64.Deploy.0 = Debug|x64
+		{7040A7E4-7590-42E4-8D8E-FD2044D63244}.Debug|x86.ActiveCfg = Debug|x86
+		{7040A7E4-7590-42E4-8D8E-FD2044D63244}.Debug|x86.Build.0 = Debug|x86
+		{7040A7E4-7590-42E4-8D8E-FD2044D63244}.Debug|x86.Deploy.0 = Debug|x86
+		{7040A7E4-7590-42E4-8D8E-FD2044D63244}.Release|Any CPU.ActiveCfg = Release|x86
+		{7040A7E4-7590-42E4-8D8E-FD2044D63244}.Release|ARM.ActiveCfg = Release|ARM
+		{7040A7E4-7590-42E4-8D8E-FD2044D63244}.Release|ARM.Build.0 = Release|ARM
+		{7040A7E4-7590-42E4-8D8E-FD2044D63244}.Release|ARM.Deploy.0 = Release|ARM
+		{7040A7E4-7590-42E4-8D8E-FD2044D63244}.Release|x64.ActiveCfg = Release|x64
+		{7040A7E4-7590-42E4-8D8E-FD2044D63244}.Release|x64.Build.0 = Release|x64
+		{7040A7E4-7590-42E4-8D8E-FD2044D63244}.Release|x64.Deploy.0 = Release|x64
+		{7040A7E4-7590-42E4-8D8E-FD2044D63244}.Release|x86.ActiveCfg = Release|x86
+		{7040A7E4-7590-42E4-8D8E-FD2044D63244}.Release|x86.Build.0 = Release|x86
+		{7040A7E4-7590-42E4-8D8E-FD2044D63244}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
