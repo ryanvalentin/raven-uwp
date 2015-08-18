@@ -6,6 +6,7 @@ using RavenUWP.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Networking.Connectivity;
 using Windows.Storage.Streams;
@@ -26,6 +27,9 @@ namespace RavenUWP
         private readonly RavenStorageClient _storage;
 
         private static RavenClient _instance = null;
+
+        // Default server request timeout in milliseconds
+        private const int _timeout = 5000;
 
         protected RavenClient(Dsn dsn, bool captureUnhandled = true)
         {
@@ -279,22 +283,37 @@ namespace RavenUWP
 
         internal async Task<string> SendPayloadAsync(RavenPayload payload)
         {
-            string jsonString = JsonConvert.SerializeObject(payload);
-            IHttpContent content = new HttpStringContent(jsonString, UnicodeEncoding.Utf8, "application/json");
-            
-            System.Diagnostics.Debug.WriteLine("[RAVEN] Sending exception to: " + Dsn.SentryUri);
-            System.Diagnostics.Debug.WriteLine("[RAVEN] Payload: " + jsonString);
+            try
+            {
+                string jsonString = JsonConvert.SerializeObject(payload);
+                IHttpContent content = new HttpStringContent(jsonString, UnicodeEncoding.Utf8, "application/json");
 
-            var response = await _httpClient.PostAsync(Dsn.SentryUri, content);
+                System.Diagnostics.Debug.WriteLine("[RAVEN] Sending exception to: " + Dsn.SentryUri);
+                System.Diagnostics.Debug.WriteLine("[RAVEN] Payload: " + jsonString);
 
-            // Extract the ID and delete the stored exception so it doesn't get sent again. 
-            // This will just return if no exception is stored with this ID.
-            JObject responseJson = JObject.Parse(await response.Content.ReadAsStringAsync());
-            string resultId = (string)responseJson["id"];
+                var cts = new CancellationTokenSource(_timeout);
+                var response = await _httpClient.PostAsync(Dsn.SentryUri, content).AsTask(cts.Token);
+                response.EnsureSuccessStatusCode();
 
-            await _storage.DeleteStoredExceptionAsync(resultId);
+                // Extract the ID and delete the stored exception so it doesn't get sent again. 
+                // This will just return if no exception is stored with this ID.
+                JObject responseJson = JObject.Parse(await response.Content.ReadAsStringAsync());
+                string resultId = (string)responseJson["id"];
 
-            return resultId;
+                await _storage.DeleteStoredExceptionAsync(resultId);
+
+                return resultId;
+            }
+            catch (Exception ex)
+            {
+                HandleInternalException(ex);
+
+                // Store this payload if there's an error sending the exception
+                // e.g. server offline or client has no internet connection
+                await _storage.StoreExceptionAsync(payload);
+            }
+
+            return null;
         }
 
         private async Task<IDictionary<string, string>> SetDefaultTagsAsync(IDictionary<string, string> tags = null)
