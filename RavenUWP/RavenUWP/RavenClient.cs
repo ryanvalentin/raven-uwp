@@ -346,7 +346,7 @@ namespace RavenUWP
 
         private void HandleInternalException(Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine(ex.Message);
+            System.Diagnostics.Debug.WriteLine(String.Format("[RAVEN] Error: {0}", ex.Message));
         }
 
 #endregion
