@@ -129,31 +129,31 @@ namespace RavenUWP.Helpers
         private const string RootQuery = "System.Devices.ContainerId:=\"" + RootContainer + "\"";
         private const string HalDeviceClass = "4d36e966-e325-11ce-bfc1-08002be10318";
 
-        internal static Task<string> GetDeviceManufacturerAsync()
+        private static string _deviceManufacturer = null;
+        internal static async Task<string> GetDeviceManufacturerAsync()
         {
-            return GetRootDeviceInfoAsync(ManufacturerKey);
+            if (_deviceManufacturer == null)
+                _deviceManufacturer = await GetRootDeviceInfoAsync(ManufacturerKey);
+
+            return _deviceManufacturer;
         }
 
-        internal static Task<string> GetDeviceModelAsync()
+        private static string _deviceModel = null;
+        internal static async Task<string> GetDeviceModelAsync()
         {
-            return GetRootDeviceInfoAsync(ModelNameKey);
+            if (_deviceModel == null)
+                _deviceModel = await GetRootDeviceInfoAsync(ModelNameKey);
+
+            return _deviceModel;
         }
 
-        internal static Task<string> GetDeviceCategoryAsync()
+        private static string _deviceCategory = null;
+        internal static async Task<string> GetDeviceCategoryAsync()
         {
-            return GetRootDeviceInfoAsync(PrimaryCategoryKey);
-        }
+            if (_deviceCategory == null)
+                _deviceCategory = await GetRootDeviceInfoAsync(PrimaryCategoryKey);
 
-        internal static async Task<string> GetWindowsVersionAsync()
-        {
-            // There is no good place to get this.
-            // The HAL driver version number should work unless you're using a custom HAL... 
-            var hal = await GetHalDevice(DeviceDriverVersionKey);
-            if (hal == null || !hal.Properties.ContainsKey(DeviceDriverVersionKey))
-                return null;
-
-            var versionParts = hal.Properties[DeviceDriverVersionKey].ToString().Split('.');
-            return string.Join(".", versionParts.Take(2).ToArray());
+            return _deviceCategory;
         }
 
         private static async Task<string> GetRootDeviceInfoAsync(string propertyKey)
