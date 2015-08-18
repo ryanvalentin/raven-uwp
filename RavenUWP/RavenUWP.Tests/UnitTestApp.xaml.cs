@@ -65,6 +65,8 @@ namespace RavenUWP.Tests
 
                 // Place the frame in the current Window
                 Window.Current.Content = rootFrame;
+
+                rootFrame.Navigate(typeof(TestPage1));
             }
             
             Microsoft.VisualStudio.TestPlatform.TestExecutor.UnitTestClient.CreateDefaultUI();
