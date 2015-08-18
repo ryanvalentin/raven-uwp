@@ -21,6 +21,16 @@ namespace RavenUWP.Helpers
             return String.Format("{0}.{1}.{2}.{3}", version.Major, version.Minor, version.Build, version.Revision);
         }
 
+        internal static string GetLibraryUserAgent()
+        {
+            string assemblyQualifiedName = typeof(SystemInformationHelper).AssemblyQualifiedName;
+            string[] assemblyArray = assemblyQualifiedName.Split(',');
+            string clientName = assemblyArray[1].Trim();
+            string[] clientVersion = assemblyArray[2].Split('=')[1].Split('.');
+
+            return String.Format("{0}/{1}.{2}", clientName, clientVersion[0], clientVersion[1]);
+        }
+
         internal static async Task<string> GetOperatingSystemVersionAsync()
         {
             string userAgent = null;

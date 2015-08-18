@@ -332,7 +332,7 @@ namespace RavenUWP
             string sentryAuthHeader = String.Format(
                 "Sentry sentry_version={0}, sentry_client={1}, sentry_timestamp={2}, sentry_key={3}, sentry_secret={4}",
                 _sentryVersion,
-                "nativehost",
+                SystemInformationHelper.GetLibraryUserAgent(),
                 (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds,
                 Dsn.PublicKey,
                 Dsn.PrivateKey
