@@ -104,24 +104,38 @@ namespace RavenUWP.Helpers
 
         private static async Task<string> GetRootDeviceInfoAsync(string propertyKey)
         {
-            var pnp = await PnpObject.CreateFromIdAsync(PnpObjectType.DeviceContainer,
+            string result = "Unknown";
+
+            try
+            {
+                var pnp = await PnpObject.CreateFromIdAsync(PnpObjectType.DeviceContainer,
                         RootContainer, new[] { propertyKey });
-            return (string)pnp.Properties[propertyKey];
+
+                result = (string)pnp.Properties[propertyKey];
+            }
+            catch { }
+
+            return result;
         }
 
         private static async Task<PnpObject> GetHalDevice(params string[] properties)
         {
-            var actualProperties = properties.Concat(new[] { DeviceClassKey });
-            var rootDevices = await PnpObject.FindAllAsync(PnpObjectType.Device,
-                actualProperties, RootQuery);
-
-            foreach (var rootDevice in rootDevices.Where(d => d.Properties != null && d.Properties.Any()))
+            try
             {
-                var lastProperty = rootDevice.Properties.Last();
-                if (lastProperty.Value != null)
-                    if (lastProperty.Value.ToString().Equals(HalDeviceClass))
-                        return rootDevice;
+                var actualProperties = properties.Concat(new[] { DeviceClassKey });
+                var rootDevices = await PnpObject.FindAllAsync(PnpObjectType.Device,
+                    actualProperties, RootQuery);
+
+                foreach (var rootDevice in rootDevices.Where(d => d.Properties != null && d.Properties.Any()))
+                {
+                    var lastProperty = rootDevice.Properties.Last();
+                    if (lastProperty.Value != null)
+                        if (lastProperty.Value.ToString().Equals(HalDeviceClass))
+                            return rootDevice;
+                }
             }
+            catch { }
+
             return null;
         }
 
@@ -134,12 +148,19 @@ namespace RavenUWP.Helpers
 
         internal static string GetLibraryUserAgent()
         {
-            string assemblyQualifiedName = typeof(SystemInformationHelper).AssemblyQualifiedName;
-            string[] assemblyArray = assemblyQualifiedName.Split(',');
-            string clientName = assemblyArray[1].Trim();
-            string[] clientVersion = assemblyArray[2].Split('=')[1].Split('.');
+            try
+            {
+                string assemblyQualifiedName = typeof(SystemInformationHelper).AssemblyQualifiedName;
+                string[] assemblyArray = assemblyQualifiedName.Split(',');
+                string clientName = assemblyArray[1].Trim();
+                string[] clientVersion = assemblyArray[2].Split('=')[1].Split('.');
 
-            return String.Format("{0}/{1}.{2}", clientName, clientVersion[0], clientVersion[1]);
+                return String.Format("{0}/{1}.{2}", clientName, clientVersion[0], clientVersion[1]);
+            }
+            catch
+            {
+                return "RavenUWP";
+            }
         }
 
         internal static string GetInternetConnectivityStatus(ConnectionProfile connectionProfile)
