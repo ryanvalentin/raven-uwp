@@ -64,11 +64,15 @@ namespace RavenUWP.Storage
 
         internal async Task StoreExceptionAsync(RavenPayload payload)
         {
-            StorageFolder folder = await GetRavenFolderAsync();
+            try
+            {
+                StorageFolder folder = await GetRavenFolderAsync();
 
-            StorageFile file = await folder.CreateFileAsync(payload.EventID, CreationCollisionOption.ReplaceExisting);
+                StorageFile file = await folder.CreateFileAsync(payload.EventID, CreationCollisionOption.ReplaceExisting);
 
-            await FileIO.WriteTextAsync(file, JsonConvert.SerializeObject(payload));
+                await FileIO.WriteTextAsync(file, JsonConvert.SerializeObject(payload));
+            }
+            catch (FileNotFoundException) { }
         }
 
         internal async Task DeleteStoredExceptionAsync(string eventId)
