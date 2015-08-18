@@ -62,6 +62,9 @@
     <Compile Include="..\RavenUWP\Models\RavenStacktrace.cs">
       <Link>Models\RavenStacktrace.cs</Link>
     </Compile>
+    <Compile Include="..\RavenUWP\Models\RavenUser.cs">
+      <Link>Models\RavenUser.cs</Link>
+    </Compile>
     <Compile Include="..\RavenUWP\RavenClient.cs">
       <Link>RavenClient.cs</Link>
     </Compile>

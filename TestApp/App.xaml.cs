@@ -31,7 +31,7 @@ namespace TestApp
         {
             Dsn dsn = new Dsn(RavenConfig.DSN);
             RavenClient.InitializeAsync(dsn);
-            RavenClient.Instance.User = "testuser";
+            RavenClient.Instance.SetUser("123456789", "testuser", "someone@example.com");
             RavenClient.Instance.Logger = "app";
 
             this.InitializeComponent();

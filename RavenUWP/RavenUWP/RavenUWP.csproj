@@ -121,6 +121,7 @@
     <Compile Include="Models\RavenFrame.cs" />
     <Compile Include="Models\RavenPayload.cs" />
     <Compile Include="Models\RavenStacktrace.cs" />
+    <Compile Include="Models\RavenUser.cs" />
     <Compile Include="RavenLogLevel.cs" />
     <Compile Include="RavenClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -70,11 +70,42 @@ namespace RavenUWP
                 return _instance;
             }
         }
+        
+        private RavenUser _user { get; set; }
+        /// <summary>
+        /// Instantiates or updates the <see cref="RavenUser"/> to be sent with every Sentry request.
+        /// </summary>
+        /// <param name="id">The unique identifier of this user.</param>
+        public void SetUser(string id)
+        {
+            SetUser(id, null, null);
+        }
 
         /// <summary>
-        /// Gets or sets the user to be sent with every Sentry request.
+        /// Instantiates or updates the <see cref="RavenUser"/> to be sent with every Sentry request.
         /// </summary>
-        public string User { get; set; }
+        /// <param name="id">The unique identifier of this user.</param>
+        /// <param name="username">The username of the this user.</param>
+        public void SetUser(string id, string username)
+        {
+            SetUser(id, username, null);
+        }
+
+        /// <summary>
+        /// Instantiates or updates the <see cref="RavenUser"/> to be sent with every Sentry request.
+        /// </summary>
+        /// <param name="id">The unique identifier of this user.</param>
+        /// <param name="username">The username of the this user.</param>
+        /// <param name="email">The email address of this user.</param>
+        public void SetUser(string id, string username, string email)
+        {
+            if (_user == null)
+                _user = new RavenUser();
+
+            _user.Id = id;
+            _user.Username = username;
+            _user.Email = email;
+        }
 
         /// <summary>
         /// Gets or sets the logger name to be sent with every Sentry request.
@@ -235,7 +266,7 @@ namespace RavenUWP
                 Timestamp = DateTime.UtcNow,
                 Platform = "uwp",
                 Logger = Logger,
-                User = User,
+                User = _user,
                 Tags = await SetDefaultTagsAsync(tags),
                 Extra = SetDefaultExtra(extra)
             };

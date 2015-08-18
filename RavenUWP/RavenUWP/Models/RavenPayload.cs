@@ -39,7 +39,7 @@ namespace RavenUWP.Models
         public string Exception { get; set; }
 
         [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
-        public string User { get; set; }
+        public RavenUser User { get; set; }
 
         [JsonProperty("tags", NullValueHandling = NullValueHandling.Ignore)]
         public IDictionary<string, string> Tags { get; set; }
