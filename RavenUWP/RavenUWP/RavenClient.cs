@@ -164,7 +164,7 @@ namespace RavenUWP
             CaptureExceptionAsync(e.Exception, true, RavenLogLevel.Error);
         }
 
-        private async Task ProcessMessageAsync(string message, RavenLogLevel level, IDictionary<string, string> tags, IDictionary<string, object> extra, bool forceSend)
+        internal async Task ProcessMessageAsync(string message, RavenLogLevel level, IDictionary<string, string> tags, IDictionary<string, object> extra, bool forceSend)
         {
             RavenPayload payload = await GeneratePayloadAsync(message, level, tags, extra);
 
@@ -174,7 +174,7 @@ namespace RavenUWP
                 await StorePayloadAsync(payload);
         }
 
-        private async Task ProcessExceptionAsync(Exception ex, RavenLogLevel level, IDictionary<string, string> tags, IDictionary<string, object> extra, bool forceSend)
+        internal async Task ProcessExceptionAsync(Exception ex, RavenLogLevel level, IDictionary<string, string> tags, IDictionary<string, object> extra, bool forceSend)
         {
             RavenPayload payload = await GeneratePayloadAsync(ex, level, tags, extra);
 
@@ -184,7 +184,7 @@ namespace RavenUWP
                 await StorePayloadAsync(payload);
         }
 
-        private async Task FlushStoredPayloadsAsync()
+        internal async Task FlushStoredPayloadsAsync()
         {
             List<Task> tasks = new List<Task>();
 
@@ -196,7 +196,7 @@ namespace RavenUWP
                 await t;
         }
 
-        private async Task<RavenPayload> GeneratePayloadAsync(string message, RavenLogLevel level, IDictionary<string, string> tags, IDictionary<string, object> extra)
+        internal async Task<RavenPayload> GeneratePayloadAsync(string message, RavenLogLevel level, IDictionary<string, string> tags, IDictionary<string, object> extra)
         {
             RavenPayload payload = await GetBasePayloadAsync(level, tags, extra);
             payload.Message = message;
@@ -204,7 +204,7 @@ namespace RavenUWP
             return payload;
         }
 
-        private async Task<RavenPayload> GeneratePayloadAsync(Exception ex, RavenLogLevel level, IDictionary<string, string> tags, IDictionary<string, object> extra)
+        internal async Task<RavenPayload> GeneratePayloadAsync(Exception ex, RavenLogLevel level, IDictionary<string, string> tags, IDictionary<string, object> extra)
         {
             string exceptionName = ex.GetBaseException().GetType().FullName;
 
@@ -241,12 +241,12 @@ namespace RavenUWP
             return payload;
         }
 
-        private async Task StorePayloadAsync(RavenPayload payload)
+        internal async Task StorePayloadAsync(RavenPayload payload)
         {
             await _storage.StoreExceptionAsync(payload);
         }
 
-        private async Task SendPayloadAsync(RavenPayload payload)
+        internal async Task<string> SendPayloadAsync(RavenPayload payload)
         {
             string jsonString = JsonConvert.SerializeObject(payload);
             IHttpContent content = new HttpStringContent(jsonString, UnicodeEncoding.Utf8, "application/json");
@@ -262,6 +262,8 @@ namespace RavenUWP
             string resultId = (string)responseJson["id"];
 
             await _storage.DeleteStoredExceptionAsync(resultId);
+
+            return resultId;
         }
 
         private async Task<IDictionary<string, string>> SetDefaultTagsAsync(IDictionary<string, string> tags = null)
@@ -269,17 +271,20 @@ namespace RavenUWP
             if (tags == null)
                 tags = new Dictionary<string, string>();
 
-            foreach (var defaultTag in DefaultTags)
-                tags.Add(defaultTag.Key, defaultTag.Value);
+            if (DefaultTags != null)
+            {
+                foreach (var defaultTag in DefaultTags)
+                    tags[defaultTag.Key] = defaultTag.Value;
+            }
 
-            Frame currentFrame = Window.Current.Content as Frame;
+            Frame currentFrame = Window.Current?.Content as Frame;
             
             tags["Root Page Type"] = currentFrame?.CurrentSourcePageType.FullName;
             tags["App Version"] = SystemInformationHelper.GetAppVersion();
             tags["OS Version"] = await SystemInformationHelper.GetOperatingSystemVersionAsync();
             tags["Device Family Version"] = SystemInformationHelper.GetDeviceFamilyVersion();
             tags["Device Family"] = SystemInformationHelper.GetDeviceFamily();
-            tags["Language"] = Windows.Globalization.ApplicationLanguages.Languages.FirstOrDefault();
+            tags["Language"] = Windows.Globalization.ApplicationLanguages.Languages?.FirstOrDefault();
 
             return tags;
         }
@@ -289,8 +294,11 @@ namespace RavenUWP
             if (extra == null)
                 extra = new Dictionary<string, object>();
 
-            foreach (var defaultExtra in DefaultExtra)
-                extra.Add(defaultExtra.Key, defaultExtra.Value);
+            if (DefaultExtra != null)
+            {
+                foreach (var defaultExtra in DefaultExtra)
+                    extra[defaultExtra.Key] = defaultExtra.Value;
+            }
             
             try
             {

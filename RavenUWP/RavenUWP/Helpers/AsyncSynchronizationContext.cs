@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace RavenUWP.Helpers
 {
-    internal class AsyncSynchronizationContext : SynchronizationContext
+    public class AsyncSynchronizationContext : SynchronizationContext
     {
         public static AsyncSynchronizationContext Register()
         {

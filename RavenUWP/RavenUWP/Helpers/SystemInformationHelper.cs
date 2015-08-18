@@ -1,9 +1,14 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
+using Windows.ApplicationModel.Core;
 using Windows.Networking.Connectivity;
 using Windows.System.Profile;
+using Windows.UI.Core;
 using Windows.UI.Xaml.Controls;
+
+[assembly: InternalsVisibleTo("RavenUWP.Tests")]
 
 namespace RavenUWP.Helpers
 {
@@ -18,18 +23,25 @@ namespace RavenUWP.Helpers
 
         internal static async Task<string> GetOperatingSystemVersionAsync()
         {
-            string userAgent = await GetBrowserUserAgent();
+            string userAgent = null;
+
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+            {
+                userAgent = await GetBrowserUserAgent();
+            });
 
             string result = String.Empty;
-
-            //Parse user agent
-            int startIndex = userAgent.ToLower().IndexOf("windows");
-            if (startIndex > 0)
+            
+            if (userAgent != null)
             {
-                int endIndex = userAgent.IndexOf(";", startIndex);
+                int startIndex = userAgent.ToLower().IndexOf("windows");
+                if (startIndex > 0)
+                {
+                    int endIndex = userAgent.IndexOf(";", startIndex);
 
-                if (endIndex > startIndex)
-                    result = userAgent.Substring(startIndex, endIndex - startIndex);
+                    if (endIndex > startIndex)
+                        result = userAgent.Substring(startIndex, endIndex - startIndex);
+                }
             }
 
             return result;
@@ -70,29 +82,27 @@ namespace RavenUWP.Helpers
         {
             var taskCompletionSource = new TaskCompletionSource<string>();
 
-            if (_userAgent != null)
+            if (_userAgent == null)
             {
-                taskCompletionSource.TrySetResult(_userAgent);
+                WebView webView = new WebView();
+                string htmlPage = "<html><head><script type='text/javascript'>function GetUserAgent(){return navigator.userAgent;}</script></head></html>";
+                webView.NavigationCompleted += async (sender, e) =>
+                {
+                    try
+                    {
+                        // Make sure we cache the user agent so we don't have to re-run this entire method
+                        _userAgent = await webView.InvokeScriptAsync("GetUserAgent", null);
+                    }
+                    catch (Exception ex)
+                    {
+                        taskCompletionSource.TrySetException(ex);
+                    }
+                };
 
-                return taskCompletionSource.Task;
+                webView.NavigateToString(htmlPage);
             }
 
-            WebView webView = new WebView();
-            string htmlPage = "<html><head><script type='text/javascript'>function GetUserAgent(){return navigator.userAgent;}</script></head></html>";
-            webView.NavigationCompleted += async (sender, e) =>
-            {
-                try
-                {
-                    string userAgent = await webView.InvokeScriptAsync("GetUserAgent", null);
-                    taskCompletionSource.TrySetResult(userAgent);
-                }
-                catch (Exception ex)
-                {
-                    taskCompletionSource.TrySetException(ex);
-                }
-            };
-
-            webView.NavigateToString(htmlPage);
+            taskCompletionSource.TrySetResult(_userAgent);
 
             return taskCompletionSource.Task;
         }
@@ -101,12 +111,12 @@ namespace RavenUWP.Helpers
 
         internal static string GetDeviceFamilyVersion()
         {
-            return AnalyticsInfo.VersionInfo.DeviceFamilyVersion;
+            return AnalyticsInfo.VersionInfo?.DeviceFamilyVersion;
         }
 
         internal static string GetDeviceFamily()
         {
-            return AnalyticsInfo.VersionInfo.DeviceFamily;
+            return AnalyticsInfo.VersionInfo?.DeviceFamily;
         }
 #endif
     }
