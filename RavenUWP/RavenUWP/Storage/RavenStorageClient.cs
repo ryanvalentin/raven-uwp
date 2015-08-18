@@ -73,11 +73,15 @@ namespace RavenUWP.Storage
 
         internal async Task DeleteStoredExceptionAsync(string eventId)
         {
-            StorageFolder folder = await GetRavenFolderAsync();
+            try
+            {
+                StorageFolder folder = await GetRavenFolderAsync();
 
-            StorageFile file = await folder.GetFileAsync(eventId);
+                StorageFile file = await folder.GetFileAsync(eventId);
 
-            await file?.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                await file?.DeleteAsync(StorageDeleteOption.PermanentDelete);
+            }
+            catch (FileNotFoundException) { }
         }
 
         private async Task<StorageFolder> GetRavenFolderAsync()
