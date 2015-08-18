@@ -53,6 +53,9 @@
     <Compile Include="..\RavenUWP\Helpers\SystemInformationHelper.cs">
       <Link>Helpers\SystemInformationHelper.cs</Link>
     </Compile>
+    <Compile Include="..\RavenUWP\Models\RavenException.cs">
+      <Link>Models\RavenException.cs</Link>
+    </Compile>
     <Compile Include="..\RavenUWP\Models\RavenFrame.cs">
       <Link>Models\RavenFrame.cs</Link>
     </Compile>

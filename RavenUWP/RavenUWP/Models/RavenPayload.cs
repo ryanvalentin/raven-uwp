@@ -36,7 +36,7 @@ namespace RavenUWP.Models
         public RavenStacktrace Stacktrace { get; set; }
 
         [JsonProperty("exception", NullValueHandling = NullValueHandling.Ignore)]
-        public string Exception { get; set; }
+        public List<RavenException> Exceptions { get; set; }
 
         [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
         public RavenUser User { get; set; }

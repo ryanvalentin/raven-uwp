@@ -118,6 +118,7 @@
     <Compile Include="Helpers\RavenExceptionHelper.cs" />
     <Compile Include="Helpers\RavenLogLevelJsonConverter.cs" />
     <Compile Include="Helpers\SystemInformationHelper.cs" />
+    <Compile Include="Models\RavenException.cs" />
     <Compile Include="Models\RavenFrame.cs" />
     <Compile Include="Models\RavenPayload.cs" />
     <Compile Include="Models\RavenStacktrace.cs" />

@@ -1,5 +1,6 @@
 ﻿using RavenUWP.Models;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -12,22 +13,28 @@ namespace RavenUWP.Helpers
     {
         private const string _stacktraceRegex = @"([\w]*)at (?<path>.*)\.(?<method>.*(.*))([\w]*)([in]*)(?<file>.*)([:line]*)(?<line>\d*)";
 
-        internal static IEnumerable<RavenFrame> ToRavenFrames(this Exception ex)
+        internal static IEnumerable<RavenException> EnumerateAllExceptions(this Exception ex)
         {
             do
             {
-                var frame = ParseStacktraceString(ex.StackTrace);
-                if (frame == null)
-                    yield break;
-                else
-                    yield return frame;
+                List<RavenFrame> frames = ex.StackTrace?.ParseStacktraceString().ToList();
+                yield return new RavenException()
+                {
+                    Stacktrace = new RavenStacktrace()
+                    {
+                        Frames = frames
+                    },
+                    Module = ex.Source,
+                    Type = ex.GetBaseException().GetType().FullName,
+                    Value = ex.Message
+                };
 
                 ex = ex.InnerException;
             }
             while (ex != null);
         }
 
-        internal static RavenFrame ParseStacktraceString(string stacktrace)
+        internal static IEnumerable<RavenFrame> ParseStacktraceString(this string stacktrace)
         {
             if (!String.IsNullOrEmpty(stacktrace))
             {
@@ -38,7 +45,7 @@ namespace RavenUWP.Helpers
                     var result = r.Match(match.ToString().Replace("\r", ""));
                     if (result.Success)
                     {
-                        return new RavenFrame()
+                        yield return new RavenFrame()
                         {
                             Filename = result.Groups["path"].Value.ToString(),
                             Method = result.Groups["method"].Value.ToString()
@@ -47,7 +54,7 @@ namespace RavenUWP.Helpers
                 }
             }
 
-            return null;
+            yield break;
         }
     }
 }

@@ -240,14 +240,12 @@ namespace RavenUWP
         internal async Task<RavenPayload> GeneratePayloadAsync(Exception ex, RavenLogLevel level, IDictionary<string, string> tags, IDictionary<string, object> extra)
         {
             string exceptionName = ex.GetBaseException().GetType().FullName;
+            string exceptionMessage = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
 
             RavenPayload payload = await GetBasePayloadAsync(level, tags, extra);
-            payload.Message = String.Format("{0}: {1}", exceptionName, ex.Message);
-            payload.Exception = exceptionName;
-            payload.Stacktrace = new RavenStacktrace()
-            {
-                Frames = ex.ToRavenFrames().ToList()
-            };
+            payload.Message = String.Format("{0}: {1}", exceptionName, exceptionMessage);
+            payload.Exceptions = ex.EnumerateAllExceptions().ToList();
+            payload.Stacktrace = payload.Exceptions.LastOrDefault()?.Stacktrace;
 
             var lastFrame = payload.Stacktrace.Frames.LastOrDefault();
             if (lastFrame != null)

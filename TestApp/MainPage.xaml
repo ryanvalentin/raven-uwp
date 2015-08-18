@@ -25,7 +25,7 @@
                     <StackPanel>
                         <TextBlock Text="{x:Bind EventID}" />
                         <TextBlock Text="{x:Bind Message}" Style="{StaticResource TitleTextBlockStyle}" />
-                        <TextBlock Text="{x:Bind Exception}" Style="{StaticResource BodyTextBlockStyle}" />
+                        <TextBlock Text="{x:Bind Exceptions[0].Value}" Style="{StaticResource BodyTextBlockStyle}" />
                         <ItemsControl ItemsSource="{x:Bind Stacktrace.Frames}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="raven:RavenFrame">
