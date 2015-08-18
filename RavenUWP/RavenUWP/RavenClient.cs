@@ -154,6 +154,8 @@ namespace RavenUWP
 
         private void Application_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
+            e.Handled = true;
+
             CaptureExceptionAsync(e.Exception, true, RavenLogLevel.Fatal);
         }
 
