@@ -291,6 +291,7 @@ namespace RavenUWP
             tags["Device Family Version"] = SystemInformationHelper.GetDeviceFamilyVersion();
             tags["Device Family"] = SystemInformationHelper.GetDeviceFamily();
 #endif
+            tags["Device Category"] = await SystemInformationHelper.GetDeviceCategoryAsync();
             tags["Device Manufacturer"] = await SystemInformationHelper.GetDeviceManufacturerAsync();
             tags["Device Model"] = await SystemInformationHelper.GetDeviceModelAsync();
 
