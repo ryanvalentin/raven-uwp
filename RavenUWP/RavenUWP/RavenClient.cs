@@ -278,10 +278,12 @@ namespace RavenUWP
             }
 
             Frame currentFrame = Window.Current?.Content as Frame;
-            
-            tags["Root Page Type"] = currentFrame?.CurrentSourcePageType.FullName;
-            tags["App Version"] = SystemInformationHelper.GetAppVersion();
-            tags["OS Version"] = await SystemInformationHelper.GetOperatingSystemVersionAsync();
+            Type sourcePageType = currentFrame?.SourcePageType;
+            string sourcePageName = sourcePageType?.FullName;
+            tags["Source Page"] = !String.IsNullOrEmpty(sourcePageName) ? sourcePageName : "Unknown";
+
+            string osVersion = await SystemInformationHelper.GetOperatingSystemVersionAsync();
+            tags["OS Version"] = !String.IsNullOrEmpty(osVersion) ? osVersion : "Unknown";
 
 #if WINDOWS_UWP
             tags["Device Family Version"] = SystemInformationHelper.GetDeviceFamilyVersion();
@@ -289,6 +291,7 @@ namespace RavenUWP
 #endif
 
             tags["Language"] = Windows.Globalization.ApplicationLanguages.Languages?.FirstOrDefault();
+            tags["App Version"] = SystemInformationHelper.GetAppVersion();
 
             return tags;
         }
@@ -346,6 +349,6 @@ namespace RavenUWP
             System.Diagnostics.Debug.WriteLine(ex.Message);
         }
 
-        #endregion
+#endregion
     }
 }
