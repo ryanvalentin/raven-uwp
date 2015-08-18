@@ -310,7 +310,7 @@ namespace RavenUWP
 
                 // Store this payload if there's an error sending the exception
                 // e.g. server offline or client has no internet connection
-                await _storage.StoreExceptionAsync(payload);
+                await StorePayloadAsync(payload);
             }
 
             return null;
