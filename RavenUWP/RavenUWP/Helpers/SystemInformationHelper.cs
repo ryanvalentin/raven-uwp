@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -14,120 +15,65 @@ using Windows.UI.Xaml.Controls;
 
 namespace RavenUWP.Helpers
 {
+    /// <summary>
+    /// Most of these methods based on this helper https://github.com/AttackPattern/CSharpAnalytics/blob/master/Source/CSharpAnalytics/SystemInfo/WindowsStoreSystemInfo.cs
+    /// </summary>
     internal static class SystemInformationHelper
     {
-        internal static string GetAppVersion()
-        {
-            PackageVersion version = Package.Current.Id.Version;
-
-            return String.Format("{0}.{1}.{2}.{3}", version.Major, version.Minor, version.Build, version.Revision);
-        }
-
-        internal static string GetLibraryUserAgent()
-        {
-            string assemblyQualifiedName = typeof(SystemInformationHelper).AssemblyQualifiedName;
-            string[] assemblyArray = assemblyQualifiedName.Split(',');
-            string clientName = assemblyArray[1].Trim();
-            string[] clientVersion = assemblyArray[2].Split('=')[1].Split('.');
-
-            return String.Format("{0}/{1}.{2}", clientName, clientVersion[0], clientVersion[1]);
-        }
-
-        internal static async Task<string> GetOperatingSystemVersionAsync()
-        {
-            string userAgent = null;
-
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
-            {
-                userAgent = await GetBrowserUserAgent();
-            });
-
-            string result = String.Empty;
-            
-            if (userAgent != null)
-            {
-                int startIndex = userAgent.ToLower().IndexOf("windows");
-                if (startIndex > 0)
-                {
-                    int endIndex = userAgent.IndexOf(";", startIndex);
-
-                    if (endIndex > startIndex)
-                        result = userAgent.Substring(startIndex, endIndex - startIndex);
-                }
-            }
-
-            return result;
-        }
-
-        internal static string GetInternetConnectivityStatus(ConnectionProfile connectionProfile)
-        {
-            if (connectionProfile == null)
-            {
-                return "No Connection";
-            }
-            else
-            {
-                try
-                {
-                    return connectionProfile.GetNetworkConnectivityLevel().ToString();
-                }
-                catch
-                {
-                    return "Unknown";
-                }
-            }
-        }
-
-        internal static string GetServiceProviderGuid(ConnectionProfile connectionProfile)
-        {
-            return connectionProfile.ServiceProviderGuid.HasValue ? connectionProfile.ServiceProviderGuid.ToString() : "Unknown";
-        }
-
-        internal static string GetSignalStrength(ConnectionProfile connectionProfile)
-        {
-            return connectionProfile.GetSignalBars().HasValue ? connectionProfile.GetSignalBars().ToString() : "Unknown";
-        }
-
-        private static string _userAgent = null;
-
-        internal static Task<string> GetBrowserUserAgent()
-        {
-            var taskCompletionSource = new TaskCompletionSource<string>();
-
-            if (_userAgent == null)
-            {
-                WebView webView = new WebView();
-                string htmlPage = "<html><head><script type='text/javascript'>function GetUserAgent(){return navigator.userAgent;}</script></head></html>";
-                webView.NavigationCompleted += async (sender, e) =>
-                {
-                    try
-                    {
-                        // Make sure we cache the user agent so we don't have to re-run this entire method
-                        _userAgent = await webView.InvokeScriptAsync("GetUserAgent", null);
-                    }
-                    catch (Exception ex)
-                    {
-                        taskCompletionSource.TrySetException(ex);
-                    }
-                };
-
-                webView.NavigateToString(htmlPage);
-            }
-
-            taskCompletionSource.TrySetResult(_userAgent);
-
-            return taskCompletionSource.Task;
-        }
-
         private const string ItemNameKey = "System.ItemNameDisplay";
         private const string ModelNameKey = "System.Devices.ModelName";
         private const string ManufacturerKey = "System.Devices.Manufacturer";
         private const string DeviceClassKey = "{A45C254E-DF1C-4EFD-8020-67D146A850E0},10";
         private const string PrimaryCategoryKey = "{78C34FC8-104A-4ACA-9EA4-524D52996E57},97";
         private const string DeviceDriverVersionKey = "{A8B865DD-2E3D-4094-AD97-E593A70C75D6},3";
+        private const string DeviceDriverProviderKey = "{A8B865DD-2E3D-4094-AD97-E593A70C75D6},9";
         private const string RootContainer = "{00000000-0000-0000-FFFF-FFFFFFFFFFFF}";
         private const string RootQuery = "System.Devices.ContainerId:=\"" + RootContainer + "\"";
         private const string HalDeviceClass = "4d36e966-e325-11ce-bfc1-08002be10318";
+
+        private static string _operatingSystemVersion = null;
+        internal static async Task<string> GetOperatingSystemVersionAsync()
+        {
+            if (_operatingSystemVersion == null)
+            {
+                try
+                {
+                    // There is no good place to get this so we're going to use the most popular
+                    // Microsoft driver version number from the device tree.
+                    var requestedProperties = new[] { DeviceDriverVersionKey, DeviceDriverProviderKey };
+
+                    var microsoftVersionedDevices = (await PnpObject.FindAllAsync(PnpObjectType.Device, requestedProperties, RootQuery))
+                        .Select(d => new
+                        {
+                            Provider = (string)d.Properties.GetValueOrDefault(DeviceDriverProviderKey),
+                            Version = (string)d.Properties.GetValueOrDefault(DeviceDriverVersionKey)
+                        })
+                        .Where(d => d.Provider == "Microsoft" && d.Version != null)
+                        .ToList();
+
+                    var versionNumbers = microsoftVersionedDevices
+                        .GroupBy(d => d.Version.Substring(0, d.Version.IndexOf('.', d.Version.IndexOf('.') + 1)))
+                        .OrderByDescending(d => d.Count())
+                        .ToList();
+
+                    var confidence = (versionNumbers[0].Count() * 100 / microsoftVersionedDevices.Count);
+                    _operatingSystemVersion = versionNumbers.Count > 0 ? versionNumbers[0].Key : "";
+                }
+                catch
+                {
+                    _operatingSystemVersion = "Unknown";
+                }
+            }
+
+            return _operatingSystemVersion;
+        }
+
+        private static TValue GetValueOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key)
+        {
+            TValue value;
+            return dictionary.TryGetValue(key, out value) ? value : default(TValue);
+        }
+
 
         private static string _deviceManufacturer = null;
         internal static async Task<string> GetDeviceManufacturerAsync()
@@ -179,6 +125,51 @@ namespace RavenUWP.Helpers
             return null;
         }
 
+        internal static string GetAppVersion()
+        {
+            PackageVersion version = Package.Current.Id.Version;
+
+            return String.Format("{0}.{1}.{2}.{3}", version.Major, version.Minor, version.Build, version.Revision);
+        }
+
+        internal static string GetLibraryUserAgent()
+        {
+            string assemblyQualifiedName = typeof(SystemInformationHelper).AssemblyQualifiedName;
+            string[] assemblyArray = assemblyQualifiedName.Split(',');
+            string clientName = assemblyArray[1].Trim();
+            string[] clientVersion = assemblyArray[2].Split('=')[1].Split('.');
+
+            return String.Format("{0}/{1}.{2}", clientName, clientVersion[0], clientVersion[1]);
+        }
+
+        internal static string GetInternetConnectivityStatus(ConnectionProfile connectionProfile)
+        {
+            if (connectionProfile == null)
+            {
+                return "No Connection";
+            }
+            else
+            {
+                try
+                {
+                    return connectionProfile.GetNetworkConnectivityLevel().ToString();
+                }
+                catch
+                {
+                    return "Unknown";
+                }
+            }
+        }
+
+        internal static string GetServiceProviderGuid(ConnectionProfile connectionProfile)
+        {
+            return connectionProfile.ServiceProviderGuid.HasValue ? connectionProfile.ServiceProviderGuid.ToString() : "Unknown";
+        }
+
+        internal static string GetSignalStrength(ConnectionProfile connectionProfile)
+        {
+            return connectionProfile.GetSignalBars().HasValue ? connectionProfile.GetSignalBars().ToString() : "Unknown";
+        }
 
 #if WINDOWS_UWP
 
