@@ -14,6 +14,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using RavenUWP;
 using RavenUWP.Models;
+using System.Threading.Tasks;
 
 namespace TestApp
 {
@@ -31,7 +32,7 @@ namespace TestApp
         {
             try
             {
-                throw new Exception("This is a test exception");
+                throw new Exception("This is a test exception.");
             }
             catch (Exception ex)
             {
@@ -44,6 +45,24 @@ namespace TestApp
             var ravenStorage = new RavenUWP.Storage.RavenStorageClient();
 
             storedExceptionsListView.ItemsSource = await ravenStorage.ListStoredExceptionsAsync();
+        }
+
+        private void unhandledExceptionButton_Click(object sender, RoutedEventArgs e)
+        {
+            throw new InvalidDataException("This is a test exception.");
+        }
+
+        private void asyncExceptionButton_Click(object sender, RoutedEventArgs e)
+        {
+            var task = ExceptAsync();
+        }
+
+        private async Task ExceptAsync()
+        {
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                throw new InvalidOperationException("This is a test exception.");
+            });
         }
     }
 }
