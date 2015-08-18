@@ -282,8 +282,12 @@ namespace RavenUWP
             tags["Root Page Type"] = currentFrame?.CurrentSourcePageType.FullName;
             tags["App Version"] = SystemInformationHelper.GetAppVersion();
             tags["OS Version"] = await SystemInformationHelper.GetOperatingSystemVersionAsync();
+
+#if WINDOWS_UWP
             tags["Device Family Version"] = SystemInformationHelper.GetDeviceFamilyVersion();
             tags["Device Family"] = SystemInformationHelper.GetDeviceFamily();
+#endif
+
             tags["Language"] = Windows.Globalization.ApplicationLanguages.Languages?.FirstOrDefault();
 
             return tags;
