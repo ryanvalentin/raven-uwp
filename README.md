@@ -21,7 +21,7 @@ Will be a NuGet package soon.
 public App()
 {
     // Create your Sentry DSN
-    Dsn dsn = new Dsn("http://public:secret@example.com/projectId");
+    Dsn dsn = new Dsn("https://public:secret@example.com/projectId");
 
     // Initialize the client with the DSN. Optionally you can choose not to handle unhandled exceptions
     // automatically (default behavior is true)
