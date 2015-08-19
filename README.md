@@ -91,7 +91,7 @@ You can also change the LogLevel from the default "Error" by specifying it in th
 RavenUWP.RavenClient.Instance.CaptureExceptionAsync(ex, true, RavenUWP.RavenLogLevel.Warning);
 ```
 
-Each request will optionally allow arbitrary indexed (tags)[https://docs.getsentry.com/hosted/tagging/] and arbitrary extra data to be sent with the request. Raven will automatically add device, OS, page information and more, so you should focus on setting variables to help debug this particular exception.
+Each request will optionally allow arbitrary indexed [tags](https://docs.getsentry.com/hosted/tagging/) and arbitrary extra data to be sent with the request. Raven will automatically add device, OS, page information and more, so you should focus on setting variables to help debug this particular exception.
 ```csharp
 var tags = new Dictionary<string, string>()
 {
