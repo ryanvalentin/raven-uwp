@@ -249,9 +249,8 @@ namespace RavenUWP
             RavenPayload payload = await GetBasePayloadAsync(level, tags, extra);
             payload.Message = String.Format("{0}: {1}", exceptionName, exceptionMessage);
             payload.Exceptions = ex.EnumerateAllExceptions().ToList();
-            payload.Stacktrace = payload.Exceptions.LastOrDefault()?.Stacktrace;
-
-            var lastFrame = payload.Stacktrace.Frames.LastOrDefault();
+            payload.Stacktrace = payload.Exceptions?.LastOrDefault()?.Stacktrace;
+            var lastFrame = payload.Stacktrace?.Frames?.LastOrDefault();
             if (lastFrame != null)
                 payload.Culprit = String.Format("{0} in {1}", lastFrame.Method, lastFrame.Filename);
 
