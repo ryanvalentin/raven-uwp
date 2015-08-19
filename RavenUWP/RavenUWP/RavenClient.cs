@@ -267,7 +267,7 @@ namespace RavenUWP
                 Level = level,
                 Timestamp = DateTime.UtcNow,
                 Platform = "uwp",
-                Logger = Logger,
+                Logger = String.IsNullOrEmpty(Logger) ? "root" : Logger,
                 User = _user,
                 Tags = await SetDefaultTagsAsync(tags),
                 Extra = SetDefaultExtra(extra)
