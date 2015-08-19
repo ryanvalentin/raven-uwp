@@ -12,7 +12,7 @@ namespace RavenUWP.Models
         [JsonProperty("stacktrace")]
         public RavenStacktrace Stacktrace { get; set; }
 
-        [JsonProperty("module")]
+        [JsonProperty("module", NullValueHandling = NullValueHandling.Ignore)]
         public string Module { get; set; }
 
         [JsonProperty("type")]
