@@ -46,5 +46,11 @@ namespace RavenUWP.Models
 
         [JsonProperty("extra", NullValueHandling = NullValueHandling.Ignore)]
         public IDictionary<string, object> Extra { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            RavenPayload payload = obj as RavenPayload;
+            return payload != null && payload.EventID == this.EventID;
+        }
     }
 }
