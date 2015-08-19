@@ -9,7 +9,7 @@ namespace RavenUWP.Tests
     public class RavenClientTests
     {
         [ClassInitialize]
-        public static void RavenTestsInit(TestContext context)
+        public static void RavenClientTestsInit(TestContext context)
         {
             Dsn dsn = new Dsn(RavenConfig.DSN);
             RavenClient.InitializeAsync(dsn);
@@ -19,7 +19,7 @@ namespace RavenUWP.Tests
         public async Task Test_Create_Valid_Payload()
         {
             Exception ex = new Exception("This is a test exception");
-            
+
             var payload = await RavenClient.Instance.GeneratePayloadAsync(ex, RavenLogLevel.Error, null, null);
 
             Assert.AreEqual("System.Exception: This is a test exception", payload.Message);
