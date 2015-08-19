@@ -75,6 +75,25 @@ namespace RavenUWP.Storage
             catch (FileNotFoundException) { }
         }
 
+        internal async Task<RavenPayload> GetPayloadByIdAsync(string eventId)
+        {
+            try
+            {
+                StorageFolder folder = await GetRavenFolderAsync();
+
+                StorageFile file = await folder.GetFileAsync(eventId);
+
+                string fileText = await FileIO.ReadTextAsync(file);
+
+                RavenPayload payload = JsonConvert.DeserializeObject<RavenPayload>(fileText);
+
+                return payload;
+            }
+            catch (FileNotFoundException) { }
+
+            return null;
+        }
+
         internal async Task DeleteStoredExceptionAsync(string eventId)
         {
             try
