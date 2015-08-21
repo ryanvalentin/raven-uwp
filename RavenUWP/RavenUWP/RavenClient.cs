@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Networking.Connectivity;
 using Windows.Storage.Streams;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.Web.Http;
@@ -370,6 +371,16 @@ namespace RavenUWP
                 extra["Connection Type"] = SystemInformationHelper.GetInternetConnectivityStatus(internetConnectionProfile);
                 extra["Internet Provider ID"] = SystemInformationHelper.GetServiceProviderGuid(internetConnectionProfile);
                 extra["Signal Strength"] = SystemInformationHelper.GetSignalStrength(internetConnectionProfile);
+
+                // Adds window bounds information
+                var bounds = Window.Current.Bounds;
+                extra["Window Size"] = String.Format("{0}x{1}", bounds.Width, bounds.Height);
+
+#if WINDOWS_UWP
+                var currentView = ApplicationView.GetForCurrentView();
+                extra["Screen Orientation"] = currentView.Orientation;
+                extra["Is Full Screen"] = currentView.IsFullScreen;
+#endif
             }
             catch (Exception ex)
             {
