@@ -1,6 +1,5 @@
 ## Ignore config file changes where DSN is input
-TestApp/RavenConfig.cs
-RavenUWP/RavenUWP.Tests/RavenConfig.cs
+#RavenUWP/RavenUWP.Tests/RavenConfig.cs
 
 #################
 ## Visual Studio
