@@ -1,5 +1,5 @@
 ## Ignore config file changes where DSN is input
-#RavenUWP/RavenUWP.Tests/RavenConfig.cs
+SentryPortable/Sentry.UWP.Tests/RavenConfig.cs
 
 #################
 ## Visual Studio
