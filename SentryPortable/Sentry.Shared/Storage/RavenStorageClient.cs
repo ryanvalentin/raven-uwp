@@ -64,6 +64,9 @@ namespace Sentry.Storage
 
         public async Task StoreExceptionAsync(RavenPayload payload)
         {
+            if (payload == null)
+                return;
+
             try
             {
                 StorageFolder folder = await GetRavenFolderAsync();
