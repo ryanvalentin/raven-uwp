@@ -6,9 +6,9 @@ using Sentry.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Text;
+using Windows.Web.Http;
 using System.Threading.Tasks;
+using Windows.Storage.Streams;
 
 #if NETFX_CORE
 using Windows.UI.Xaml;
@@ -21,7 +21,7 @@ namespace Sentry
         private const int _defaultTimeout = 5000;
 
         private const int _sentryVersion = 4;
-        
+
         private readonly HttpClient _httpClient;
 
         private readonly IRavenStorageClient _storage;
@@ -83,7 +83,7 @@ namespace Sentry
                 return _instance;
             }
         }
-        
+
         private RavenUser _user { get; set; }
         /// <summary>
         /// Instantiates or updates the <see cref="RavenUser"/> to be sent with every Sentry request.
@@ -294,11 +294,11 @@ namespace Sentry
             try
             {
                 string jsonString = JsonConvert.SerializeObject(payload);
-                StringContent content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+                HttpStringContent content = new HttpStringContent(jsonString, UnicodeEncoding.Utf8, "application/json");
 
                 System.Diagnostics.Debug.WriteLine("[SENTRY] Sending exception to: " + Dsn.SentryUri);
                 System.Diagnostics.Debug.WriteLine("[SENTRY] Payload: " + jsonString);
-                
+
                 var response = await _httpClient.PostAsync(Dsn.SentryUri, content);
                 response.EnsureSuccessStatusCode();
 
@@ -359,9 +359,8 @@ namespace Sentry
             );
 
             HttpClient client = new HttpClient();
-            client.Timeout = TimeSpan.FromMilliseconds(_defaultTimeout);
             client.DefaultRequestHeaders.Add("X-Sentry-Auth", sentryAuthHeader);
-            
+
             return client;
         }
 
@@ -370,6 +369,6 @@ namespace Sentry
             System.Diagnostics.Debug.WriteLine(String.Format("[SENTRY] Error: {0}", ex.Message));
         }
 
-#endregion
+        #endregion
     }
 }
